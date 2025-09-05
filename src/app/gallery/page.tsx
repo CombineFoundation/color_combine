@@ -26,26 +26,26 @@ export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
- useEffect(() => {
-  let timer: NodeJS.Timeout;
-  if (isPlaying && selectedImage !== null) {
-    timer = setInterval(() => {
-      setSelectedImage((prev) => {
-        if (prev !== null) {
-          if (prev === images.length - 1) {
-            // Last image reached → Stop slideshow and close modal
-            setIsPlaying(false);
-            return null; // Modal close ho jayega
-          } else {
-            return prev + 1;
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isPlaying && selectedImage !== null) {
+      timer = setInterval(() => {
+        setSelectedImage((prev) => {
+          if (prev !== null) {
+            if (prev === images.length - 1) {
+              // Last image reached → Stop slideshow and close modal
+              setIsPlaying(false);
+              return null; // Modal close ho jayega
+            } else {
+              return prev + 1;
+            }
           }
-        }
-        return 0;
-      });
-    }, 2000); // 2 seconds per slide
-  }
-  return () => clearInterval(timer);
-}, [isPlaying, selectedImage]);
+          return 0;
+        });
+      }, 2000); // 2 seconds per slide
+    }
+    return () => clearInterval(timer);
+  }, [isPlaying, selectedImage, images.length]); // ✅ Added images.length
 
   return (
     <div className="w-full">

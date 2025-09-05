@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from "react";
 
+type CellValue = string | number | null;
+type RowData = CellValue[];
+
 export default function BookingsPage() {
   const staticHeaders = ["DAY", "DATE", "DAY", "NIGHT"];
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<RowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const SHEET_ID = "11TlSm5ip3Gv6OTIBa-9VgNBRuAGP6gBDPkYRzpe5Z3g";
   const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
-  const formatDate = (value: string) => {
+  const formatDate = (value: CellValue): string | number | null => {
     if (typeof value === "string" && value.startsWith("Date(")) {
       const parts = value.match(/\d+/g);
       if (parts) {
@@ -37,11 +40,13 @@ export default function BookingsPage() {
         const text = await response.text();
 
         const json = JSON.parse(text.substr(47).slice(0, -2));
-        const dataRows = json.table.rows
+        const dataRows: RowData[] = json.table.rows
           .slice(1)
-          .map((row: any) => row.c.map((cell: any) => (cell ? cell.v : "")));
+          .map((row: { c: { v: CellValue }[] }) =>
+            row.c.map((cell) => (cell ? cell.v : ""))
+          );
 
-        setRows(dataRows.map((r: any[]) => r.map(formatDate)));
+        setRows(dataRows.map((r) => r.map(formatDate)));
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load booking data. Please try again later.");
@@ -81,9 +86,9 @@ export default function BookingsPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row: any[], rowIndex: number) => (
+              {rows.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-100">
-                  {row.map((cell: string, cellIndex: number) => (
+                  {row.map((cell, cellIndex) => (
                     <td
                       key={cellIndex}
                       className="py-2 px-4 md:py-3 md:px-6 border border-gray-300 text-gray-700 text-xs md:text-base"
